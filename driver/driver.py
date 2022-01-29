@@ -6,7 +6,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.common.by import By
 
-from GLOBALS import CHROME_DRIVER_LOCATION, RESERVATION_ATTEMPT_RETRY_INTERVAL_SECONDS, CRYSTAL_STARRED
+from GLOBALS import CHROME_DRIVER_LOCATION, RESERVATION_ATTEMPT_RETRY_INTERVAL_SECONDS, IS_STARRED
 
 
 class Driver:
@@ -39,6 +39,8 @@ class Driver:
 
     def login(self):
 
+        # TODO sometimes the login page asks you to check a box saying I am not a robot
+        # Do a check for the robot checkbox. If it's there, click it and hit go.
         username_field_id, password_field_id, submit_button_class = self.get_login_form_info()
 
         username_field_id.send_keys(self.username)
@@ -81,18 +83,19 @@ class Driver:
             logger.info(f'Current URL must be "{add_reservation_page}" to proceed with making reservations, the '
                         f'current URL is "{self.driver.current_url}"')
 
-        # This is the ID of the Crystal Mountain Resort element... TODO: Find a better way to do this.
-        if CRYSTAL_STARRED:
-            crystal_mountain_id = 'react-autowhatever-resort-picker-section-4-item-0'
+        # This is the ID of the Jackson Hole Mountain Element. Jackson Hole must be the ONLY resort starred.
+        # TODO: Find a better way to do this.
+        if IS_STARRED:
+            jackson_hole_mountain_id = 'react-autowhatever-resort-picker-section-0-item-0'
         else:
-            crystal_mountain_id = 'react-autowhatever-resort-picker-section-3-item-0'
+            raise Exception("The mountain is not favorited and so is not in the proper position")
 
-        crystal_mountain_element = self.wait.until(
-            ec.visibility_of_element_located((By.ID, crystal_mountain_id)))
-        crystal_mountain_element.click()
+        jackson_hole_mountain_element = self.wait.until(
+            ec.visibility_of_element_located((By.ID, jackson_hole_mountain_id)))
+        jackson_hole_mountain_element.click()
 
-        button = self.wait.until(ec.visibility_of_element_located((By.CSS_SELECTOR, 'button.sc-AxjAm')))
-        button.click()
+        continue_button = self.wait.until(ec.visibility_of_element_located((By.CSS_SELECTOR, 'button.sc-AxjAm')))
+        continue_button.click()
 
         # TODO: Select proper month (Currently reservations can only be made for the current month)
         self.driver.implicitly_wait(1)
@@ -101,10 +104,11 @@ class Driver:
         able_to_make_reservation = False
 
         for day in days_elements:
+            # The date value i.e. 'Jan 29 2022'
             day_value = day.get_attribute('aria-label')[4:]
             day_class = day.get_attribute('class')
 
-            if 'unavailable' not in day_class and day_value == self.reservation_date:
+            if 'unavailable' not in day_class and 'past' not in day_class and day_value == self.reservation_date:
                 able_to_make_reservation = True
                 logger.info(f'Reservation available for "{self.reservation_date}", attempting to reserve day.')
                 day.click()
@@ -122,8 +126,10 @@ class Driver:
         save_button = self.wait.until(ec.visibility_of_element_located((By.CSS_SELECTOR, '.jxPclZ')))
         save_button.click()
 
-        # Need to wait here for some reason...
+        # Need to wait here for some reason... Probably because page needs to refresh after click
         time.sleep(1)
+
+        # CONTINUE TO CONFIRM BUTTON
         review_button = self.wait.until(ec.visibility_of_element_located((By.CSS_SELECTOR,
                                                                           'button.sc-AxjAm:nth-child(1)')))
         review_button.click()
@@ -131,9 +137,12 @@ class Driver:
         agree_checkbox = self.wait.until(ec.visibility_of_element_located((By.CLASS_NAME, 'input')))
         agree_checkbox.click()
 
-        confirm_button = self.wait.until(ec.visibility_of_element_located((By.CSS_SELECTOR,
-                                                                           'button.sc-AxjAm:nth-child(1)')))
-        confirm_button.click()
+        print("Completing a reservation!!!")
+        logger.info('completing a reservation!!!')
+        time.sleep(10)
+        # confirm_button = self.wait.until(ec.visibility_of_element_located((By.CSS_SELECTOR,
+        #                                                                    'button.sc-AxjAm:nth-child(1)')))
+        # confirm_button.click()
 
     def validate_move(self):
         # We give the application 5 seconds to move to the new page before timing out

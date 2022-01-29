@@ -19,14 +19,17 @@ RESERVATION_ATTEMPT_RETRY_INTERVAL_SECONDS = 10
 # Set the Twilio credentials as an environment variables in Powershell:
 # $env:TWILIO_ACCOUNT_SID = 'SID_HERE'
 # $env:TWILIO_AUTH_TOKEN = 'TOKEN_HERE'
-TWILIO_ACCOUNT_SID = os.environ['TWILIO_ACCOUNT_SID']
-TWILIO_AUTH_TOKEN = os.environ['TWILIO_AUTH_TOKEN']
-TWILIO_FROM_NUMBER = '+12058986998'
-# Set the to number as an environment variable in Powershell:
-# $env:TWILIO_TO_NUMBER  = 'TO_NUMBER_HERE'
-# Use the following format '=15556781111'
-TWILIO_TO_NUMBER = os.environ['TWILIO_TO_NUMBER']
+
+# # COMMENT OUT FOR TESTING
+# TWILIO_ACCOUNT_SID = os.environ['TWILIO_ACCOUNT_SID']
+# TWILIO_AUTH_TOKEN = os.environ['TWILIO_AUTH_TOKEN']
+# TWILIO_FROM_NUMBER = '+12058986998'
+#
+# # Set the to number as an environment variable in Powershell:
+# # $env:TWILIO_TO_NUMBER  = 'TO_NUMBER_HERE'
+# # Use the following format '=15556781111'
+# TWILIO_TO_NUMBER = os.environ['TWILIO_TO_NUMBER']
 
 # If you have Crystal Mountain Resort selected as a favourite on the Ikon Pass site, leave this as true, otherwise
 # set it to 'False'
-CRYSTAL_STARRED = True
+IS_STARRED = True
